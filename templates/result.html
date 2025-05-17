@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detection Result - Malaria Detection System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffe4e4;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+        }
+
+        .header {
+            background-color: #ff8585;
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result-section {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-box {
+            border: 3px solid #ff8585;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            background-color: #fff5f5;
+        }
+
+        .result-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .result-text {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .image-section {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .back-btn {
+            background-color: #ff8585;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #ff6b6b;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Detection Result</h1>
+            <p>Analysis of your uploaded blood cell image</p>
+        </div>
+
+        <div class="result-section">
+            <h2>Analysis Result</h2>
+            <div class="result-box">
+                <div class="result-icon">
+                    {% if result == "Malaria Detected" %}
+                    ⚠️
+                    {% else %}
+                    ✅
+                    {% endif %}
+                </div>
+                <div class="result-text">{{ result }}</div>
+                <a href="{{ url_for('view_report', filename=filename, result=result) }}" class="report-btn">
+                    📋 View Medical Report
+                </a>
+            </div>
+        </div>
+
+        <style>
+            .report-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background-color: #ff8585;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-size: 16px;
+                margin-top: 20px;
+                transition: all 0.3s ease;
+            }
+
+            .report-btn:hover {
+                background-color: #ff6b6b;
+                transform: translateY(-2px);
+            }
+        </style>
+
+        <div class="image-section">
+            <h2>Analyzed Image</h2>
+            <img src="{{ url_for('serve_images', filename=filename) }}" alt="Analyzed blood cell image" class="uploaded-image">
+            <div>
+                <a href="{{ url_for('index') }}" class="back-btn">← Upload Another Image</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Add these chatbot styles after existing styles */
+        .chat-bot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-bot-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #ff8585;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-bot-button:hover {
+            transform: scale(1.1);
+            background-color: #ff6b6b;
+        }
+
+        .chat-box {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #ff8585;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header .bot-icon {
+            font-size: 24px;
+        }
+
+        .chat-header .bot-title {
+            flex-grow: 1;
+        }
+
+        .chat-header .close-chat {
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .bot-message {
+            background: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message {
+            background: #ff8585;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            background: #ff8585;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background: #ff6b6b;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            align-self: flex-start;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+
+    <!-- Add this before closing body tag -->
+    <div class="chat-bot-container">
+        <button class="chat-bot-button" onclick="toggleChat()">💊</button>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <div class="bot-icon">🤖</div>
+                <div class="bot-title">Medical Assistant</div>
+                <div class="close-chat" onclick="toggleChat()">×</div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    Hello! I'm your medical assistant. How can I help you today?
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                Bot is typing...
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.style.display = chatBox.style.display === 'none' || chatBox.style.display === '' ? 'flex' : 'none';
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'none';
+        }
+
+        function addMessage(message, isUser = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                addMessage(message, true);
+                userInput.value = '';
+                showTypingIndicator();
+
+                // Simulate bot response
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const botResponse = getBotResponse(message);
+                    addMessage(botResponse);
+                }, 1000);
+            }
+        }
+
+        function getBotResponse(message) {
+            const responses = {
+                'hello': 'Hi! I can help you with malaria detection information. Here are some topics you can ask about:\n\n1. What are the symptoms of malaria?\n2. How is malaria transmitted?\n3. How can I prevent malaria?\n4. What are the risk factors?\n5. How is malaria diagnosed?\n6. What treatments are available?\n7. What does the test result mean?\n\nJust click or type your question!',
+                
+                'hi': 'Hello! I can help you with malaria detection information. Here are some topics you can ask about:\n\n1. What are the symptoms of malaria?\n2. How is malaria transmitted?\n3. How can I prevent malaria?\n4. What are the risk factors?\n5. How is malaria diagnosed?\n6. What treatments are available?\n7. What does the test result mean?\n\nJust click or type your question!',
+
+                'symptoms': 'Common malaria symptoms include:\n• High fever and chills\n• Severe headache\n• Muscle pain and fatigue\n• Nausea and vomiting\n• Night sweats\n• Rapid breathing\n\nSeek immediate medical attention if you experience these symptoms.',
+
+                'transmitted': 'Malaria transmission occurs through:\n• Infected female Anopheles mosquito bites\n• Mother to unborn child (rare)\n• Blood transfusions (very rare)\n\nIt is NOT transmitted through casual contact between people.',
+
+                'prevent': 'Prevention methods include:\n• Using mosquito nets\n• Wearing protective clothing\n• Using insect repellent\n• Taking antimalarial medication\n• Avoiding mosquito-prone areas\n• Eliminating standing water',
+
+                'risk factors': 'High-risk groups include:\n• Pregnant women\n• Young children\n• Elderly people\n• People with weak immune systems\n• Travelers to endemic areas\n• People without access to healthcare',
+
+                'diagnosis': 'Malaria diagnosis involves:\n• Blood tests\n• Microscopic examination\n• Rapid diagnostic tests\n• AI-powered image analysis (like our system)\n• Clinical evaluation of symptoms',
+
+                'treatment': 'Treatment options include:\n• Antimalarial medications\n• Supportive care\n• Fluid replacement\n• Close medical monitoring\n\nThe specific treatment depends on:\n• Type of malaria\n• Severity of symptoms\n• Patient\'s condition',
+
+                'test result': 'Our AI system analyzes blood cell images to detect malaria parasites. A positive result suggests the presence of malaria parasites, while a negative result indicates no parasites were detected. Always consult healthcare professionals for confirmation.',
+
+                'help': 'I can provide information about malaria. Type "hi" to see all available topics.',
+                
+                'thanks': 'You\'re welcome! Type "hi" if you need more information about malaria.',
+                
+                'bye': 'Take care! Remember to consult healthcare professionals for medical advice.'
+            };
+
+            message = message.toLowerCase();
+            for (const key in responses) {
+                if (message.includes(key)) {
+                    return responses[key];
+                }
+            }
+            return "I can help you with information about malaria. Type 'hi' to see all available topics I can help you with.";
+        }
+    </script>
